@@ -1,16 +1,14 @@
-import openai
-from config import Config
-cfg = Config()
+import requests
+import json
 
-openai.api_key = cfg.openai_api_key
+def create_chat_completion(messages, model="whatever", node="localhost", node_port=5000, temperature=1.0, max_tokens=1024)->str:
+    data = {
+        'messages': messages,
+        'temperature': temperature,
+        'max_tokens': max_tokens,
+    }
 
-# Overly simple abstraction until we create something better
-def create_chat_completion(messages, model=None, temperature=None, max_tokens=None)->str:
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens
-    )
+    response = requests.post(f"http://{node}:{node_port}/ask_llm", json=data)
+    response_json = response.json()
 
-    return response.choices[0].message["content"]
+    return response_json['response']
